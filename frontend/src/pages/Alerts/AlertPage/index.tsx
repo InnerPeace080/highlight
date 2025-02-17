@@ -11,39 +11,39 @@ import {
 	Tag,
 	Text,
 } from '@highlight-run/ui/components'
-import { useNavigate } from 'react-router-dom'
 import { useParams } from '@util/react-router/useParams'
 import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
+import { useNavigate } from 'react-router-dom'
 
-import { Button } from '@components/Button'
 import { toast } from '@/components/Toaster'
 import {
 	GetAlertDocument,
-	useGetAlertQuery,
 	useGetAlertingAlertStateChangesLazyQuery,
+	useGetAlertQuery,
 	useGetLastAlertStateChangesLazyQuery,
 	useUpdateAlertDisabledMutation,
 } from '@/graph/generated/hooks'
-import { useProjectId } from '@/hooks/useProjectId'
-import { HeaderDivider } from '@/pages/Graphing/Dashboard'
-import { GraphContextProvider } from '@/pages/Graphing/context/GraphContext'
-import { useGraphData } from '@pages/Graphing/hooks/useGraphData'
 import {
 	Alert,
 	AlertStateChange,
 	ThresholdCondition,
 	ThresholdType,
 } from '@/graph/generated/schemas'
+import { useProjectId } from '@/hooks/useProjectId'
+import { HeaderDivider } from '@/pages/Graphing/Dashboard'
+import { GraphContextProvider } from '@/pages/Graphing/context/GraphContext'
+import { Button } from '@components/Button'
+import { useGraphData } from '@pages/Graphing/hooks/useGraphData'
 
+import SearchPagination from '@/components/SearchPagination/SearchPagination'
+import { useGraphTime } from '@/pages/Graphing/hooks/useGraphTime'
+import { NumberParam, useQueryParam, withDefault } from 'use-query-params'
 import { AlertGraph } from '../AlertGraph'
 import { AlertHeader } from './AlertHeader'
 import { AlertInfo } from './AlertInfo'
 import { AlertTable } from './AlertTable'
 import * as style from './styles.css'
-import SearchPagination from '@/components/SearchPagination/SearchPagination'
-import { NumberParam, useQueryParam, withDefault } from 'use-query-params'
-import { useGraphTime } from '@/pages/Graphing/hooks/useGraphTime'
 
 const START_PAGE = 1
 const PAGE_SIZE = 10
@@ -160,6 +160,8 @@ export const AlertPage: React.FC = () => {
 	if (loading || !data?.alert) {
 		return null
 	}
+
+	console.log('AlertPage')
 
 	return (
 		<GraphContextProvider value={graphContext}>

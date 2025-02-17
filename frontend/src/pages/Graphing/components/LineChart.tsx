@@ -87,6 +87,7 @@ const LineChartImpl = ({
 }: React.PropsWithChildren<
 	InnerChartProps<LineChartConfig> & SeriesInfo & AxisConfig
 >) => {
+	console.log('LineChartImpl')
 	const series = useGraphSeries(data, xAxisMetric)
 	const xAxisTickFormatter = getTickFormatter(xAxisMetric, data)
 	const yAxisTickFormatter = getTickFormatter(

@@ -15,13 +15,15 @@ export BACKEND_HEALTH_URI=$(echo "$REACT_APP_PUBLIC_GRAPH_URI" | sed -e 's/\/pub
 export LICENSE_KEY=$LICENSE_KEY_OVERRIDE
 export BUILD_ARGS="--build-arg DOPPLER_TOKEN=${DOPPLER_TOKEN}"
 
-# if doppler is configured, use the doppler SSL value
-export -n DOPPLER_CONFIG
-DOPPLER_SSL=$(DOPPLER_CONFIG="" DOPPLER_TOKEN="" doppler secrets get SSL --plain || true)
-if [[ "$DOPPLER_SSL" =~ ^(true|false)$ ]]; then
-    export SSL=${DOPPLER_SSL}
-    echo "Using doppler-set SSL value ${SSL}."
-fi
+echo $DOPPLER_TOKEN
+
+# # if doppler is configured, use the doppler SSL value
+# export -n DOPPLER_CONFIG
+# DOPPLER_SSL=$(DOPPLER_CONFIG="" DOPPLER_TOKEN="" doppler secrets get SSL --plain || true)
+# if [[ "$DOPPLER_SSL" =~ ^(true|false)$ ]]; then
+#     export SSL=${DOPPLER_SSL}
+#     echo "Using doppler-set SSL value ${SSL}."
+# fi
 
 if [[ "$*" == *"--go-docker"* ]]; then
     export CLICKHOUSE_ADDRESS=clickhouse:9000

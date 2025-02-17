@@ -11,9 +11,9 @@ import {
 import { useProjectId } from '@/hooks/useProjectId'
 import Graph, { SetTimeRange } from '@/pages/Graphing/components/Graph'
 
-import * as style from './styles.css'
 import { BarChartConfig } from '@/pages/Graphing/components/BarChart'
 import { LineChartConfig } from '@/pages/Graphing/components/LineChart'
+import * as style from './styles.css'
 
 type Props = {
 	alertName: string
@@ -69,6 +69,8 @@ export const AlertGraph: React.FC<Props> = ({
 	const expressions = useMemo(() => {
 		return [{ aggregator: functionType, column: functionColumn }]
 	}, [functionColumn, functionType])
+
+	console.log('AlertGraph')
 
 	return (
 		<Box cssClass={style.graphWrapper} shadow="small">

@@ -1,13 +1,13 @@
+import { LineChart } from '@/pages/Graphing/components/LineChart'
 import { useGetMetricsQuery } from '@graph/hooks'
 import { MetricAggregator, MetricBucketBy, ProductType } from '@graph/schemas'
-import { LineChart } from '@/pages/Graphing/components/LineChart'
+import { TIMESTAMP_KEY, useGraphData } from '@pages/Graphing/components/Graph'
 import { NetworkResource } from '@pages/Player/Toolbar/DevToolsWindowV2/utils'
 import { getGraphQLResolverName } from '@pages/Player/utils/utils'
 import { useParams } from '@util/react-router/useParams'
 import moment from 'moment'
 import React from 'react'
 import styles from './RequestMetrics.module.css'
-import { TIMESTAMP_KEY, useGraphData } from '@pages/Graphing/components/Graph'
 
 interface Props {
 	resource: NetworkResource
@@ -50,7 +50,7 @@ const RequestMetrics: React.FC<Props> = ({ resource }) => {
 	if (!data?.metrics?.buckets) {
 		return null
 	}
-
+	console.log('RequestMetrics')
 	return (
 		<div className={styles.requestMetrics}>
 			<div className={styles.chartContainer}>

@@ -68,12 +68,12 @@ import {
 
 import * as style from './Graph.css'
 
-import { EventSelectionStep } from '@pages/Graphing/util'
-import { useGraphContext } from '../context/GraphContext'
-import { TIME_METRICS } from '@pages/Graphing/constants'
-import _ from 'lodash'
 import { useSetRelatedResource } from '@/components/RelatedResources/hooks'
+import { TIME_METRICS } from '@pages/Graphing/constants'
+import { EventSelectionStep } from '@pages/Graphing/util'
 import useLocalStorage from '@rehooks/local-storage'
+import _ from 'lodash'
+import { useGraphContext } from '../context/GraphContext'
 
 export type View = 'Line chart' | 'Bar chart' | 'Funnel chart' | 'Table'
 
@@ -802,21 +802,62 @@ export const useGraphData = (
 	xAxisMetric: string,
 	thresholdSettings?: ThresholdSettings,
 ) => {
+	const prevMetrics = useRef(metrics)
+	const prevAxisMetric = useRef(xAxisMetric)
+
+	const { thresholdCondition, thresholdValue, thresholdType } =
+		thresholdSettings ?? {}
+
+	const prevThresholdCondition = useRef(thresholdCondition)
+	const prevThresholdValue = useRef(thresholdValue)
+	const prevThresholdType = useRef(thresholdType)
+
 	return useMemo(() => {
+		console.log('useGraphData memo')
+		console.log(
+			'metrics',
+			metrics,
+			prevMetrics.current,
+			prevMetrics.current === metrics,
+		)
+		prevMetrics.current = metrics
+		console.log(
+			'xAxisMetric',
+			xAxisMetric,
+			prevAxisMetric.current,
+			prevAxisMetric.current === xAxisMetric,
+		)
+		prevAxisMetric.current = xAxisMetric
+		console.log(
+			'thresholdCondition',
+			thresholdCondition,
+			prevThresholdCondition.current,
+			prevThresholdCondition.current === thresholdCondition,
+		)
+		prevThresholdCondition.current = thresholdCondition
+		console.log(
+			'thresholdValue',
+			thresholdValue,
+			prevThresholdValue.current,
+			prevThresholdValue.current === thresholdValue,
+		)
+		prevThresholdValue.current = thresholdValue
+		console.log(
+			'thresholdType',
+			thresholdType,
+			prevThresholdType.current,
+			prevThresholdType.current === thresholdType,
+		)
+		prevThresholdType.current = thresholdType
+
 		let upperThreshold: number | undefined
 		let lowerThreshold: number | undefined
-		if (thresholdSettings?.thresholdType === ThresholdType.Constant) {
-			if (
-				thresholdSettings.thresholdCondition ===
-				ThresholdCondition.Above
-			) {
-				upperThreshold = thresholdSettings.thresholdValue
+		if (thresholdType === ThresholdType.Constant) {
+			if (thresholdCondition === ThresholdCondition.Above) {
+				upperThreshold = thresholdValue
 			}
-			if (
-				thresholdSettings.thresholdCondition ===
-				ThresholdCondition.Below
-			) {
-				lowerThreshold = thresholdSettings.thresholdValue
+			if (thresholdCondition === ThresholdCondition.Below) {
+				lowerThreshold = thresholdValue
 			}
 		}
 
@@ -917,7 +958,13 @@ export const useGraphData = (
 			}
 		}
 		return data
-	}, [metrics, xAxisMetric, thresholdSettings])
+	}, [
+		metrics,
+		xAxisMetric,
+		thresholdCondition,
+		thresholdValue,
+		thresholdType,
+	])
 }
 
 export const useFunnelData = (
@@ -1297,8 +1344,153 @@ const Graph = ({
 		xAxisMetric = bucketByKey
 	}
 
+	const prevBucketByKeyRef = useRef(bucketByKey)
+	const prevBucketByWindowRef = useRef(bucketByWindow)
+	const prevGetMetricsRef = useRef(getMetrics)
+	const prevSqlRef = useRef(sql)
+	const prevGroupByKeysRef = useRef(groupByKeys)
+	const prevLimitRef = useRef(limit)
+	const prevLimitFunctionTypeRef = useRef(limitFunctionType)
+	const prevLimitMetricRef = useRef(limitMetric)
+	const prevFunnelStepsRef = useRef(funnelSteps)
+	const prevProductTypeRef = useRef(productType)
+	const prevProjectIdRef = useRef(projectId)
+	const prevQueriedBucketCountRef = useRef(queriedBucketCount)
+	const prevQueryRef = useRef(query)
+	const prevVariablesRef = useRef(variables)
+	const prevPredictionSettingsRef = useRef(predictionSettings)
+	const prevExpressionsRef = useRef(expressions)
+	const prevStartDateRef = useRef(startDate)
+	const prevEndDateRef = useRef(endDate)
+
+	const groupByKey = groupByKeys?.at(0)
+	const prevGroupByKeyRef = useRef(groupByKey)
+
 	// fetch new metrics when varaibles change (including polled fetch time)
 	useEffect(() => {
+		console.log('use effect variables')
+		console.log(
+			'bucketByKey',
+			bucketByKey,
+			prevBucketByKeyRef.current,
+			prevBucketByKeyRef.current === bucketByKey,
+		)
+		prevBucketByKeyRef.current = bucketByKey
+		console.log(
+			'bucketByWindow',
+			bucketByWindow,
+			prevBucketByWindowRef.current,
+			prevBucketByWindowRef.current === bucketByWindow,
+		)
+		prevBucketByWindowRef.current = bucketByWindow
+		console.log(
+			'getMetrics',
+			getMetrics,
+			prevGetMetricsRef.current,
+			prevGetMetricsRef.current === getMetrics,
+		)
+		prevGetMetricsRef.current = getMetrics
+		console.log('sql', sql, prevSqlRef.current, prevSqlRef.current === sql)
+		prevSqlRef.current = sql
+		console.log(
+			'groupByKey',
+			groupByKey,
+			prevGroupByKeyRef.current,
+			prevGroupByKeyRef.current === groupByKey,
+		)
+		prevGroupByKeyRef.current = groupByKey
+		console.log(
+			'limit',
+			limit,
+			prevLimitRef.current,
+			prevLimitRef.current === limit,
+		)
+		prevLimitRef.current = limit
+		console.log(
+			'limitFunctionType',
+			limitFunctionType,
+			prevLimitFunctionTypeRef.current,
+			prevLimitFunctionTypeRef.current === limitFunctionType,
+		)
+		prevLimitFunctionTypeRef.current = limitFunctionType
+		console.log(
+			'limitMetric',
+			limitMetric,
+			prevLimitMetricRef.current,
+			prevLimitMetricRef.current === limitMetric,
+		)
+		prevLimitMetricRef.current = limitMetric
+		console.log(
+			'funnelSteps',
+			funnelSteps,
+			prevFunnelStepsRef.current,
+			prevFunnelStepsRef.current === funnelSteps,
+		)
+		prevFunnelStepsRef.current = funnelSteps
+		console.log(
+			'productType',
+			productType,
+			prevProductTypeRef.current,
+			prevProductTypeRef.current === productType,
+		)
+		prevProductTypeRef.current = productType
+		console.log(
+			'projectId',
+			projectId,
+			prevProjectIdRef.current,
+			prevProjectIdRef.current === projectId,
+		)
+		prevProjectIdRef.current = projectId
+		console.log(
+			'queriedBucketCount',
+			queriedBucketCount,
+			prevQueriedBucketCountRef.current,
+			prevQueriedBucketCountRef.current === queriedBucketCount,
+		)
+		prevQueriedBucketCountRef.current = queriedBucketCount
+		console.log(
+			'query',
+			query,
+			prevQueryRef.current,
+			prevQueryRef.current === query,
+		)
+		prevQueryRef.current = query
+		console.log(
+			'variables',
+			variables,
+			prevVariablesRef.current,
+			prevVariablesRef.current === variables,
+		)
+		prevVariablesRef.current = variables
+		console.log(
+			'predictionSettings',
+			predictionSettings,
+			prevPredictionSettingsRef.current,
+			prevPredictionSettingsRef.current === predictionSettings,
+		)
+		prevPredictionSettingsRef.current = predictionSettings
+		console.log(
+			'expressions',
+			expressions,
+			prevExpressionsRef.current,
+			prevExpressionsRef.current === expressions,
+		)
+		prevExpressionsRef.current = expressions
+		console.log(
+			'startDate',
+			startDate,
+			prevStartDateRef.current,
+			prevStartDateRef.current === startDate,
+		)
+		prevStartDateRef.current = startDate
+		console.log(
+			'endDate',
+			endDate,
+			prevEndDateRef.current,
+			prevEndDateRef.current === endDate,
+		)
+		prevEndDateRef.current = endDate
+
 		const useLongerRounding = moment(endDate).diff(startDate, 'hours') >= 4
 
 		const overage = useLongerRounding ? moment(startDate).minute() % 5 : 0
@@ -1321,8 +1513,8 @@ const Graph = ({
 			},
 			sql: sql,
 			group_by:
-				groupByKeys !== undefined
-					? matchParamVariables(groupByKeys, variables)
+				groupByKey !== undefined
+					? matchParamVariables([groupByKey], variables)
 					: [],
 			bucket_by:
 				bucketByKey !== undefined
@@ -1377,7 +1569,7 @@ const Graph = ({
 		bucketByWindow,
 		getMetrics,
 		sql,
-		groupByKeys,
+		groupByKey,
 		limit,
 		limitFunctionType,
 		limitMetric,
@@ -1405,21 +1597,47 @@ const Graph = ({
 
 	const [spotlight, setSpotlight] = useState<number | undefined>()
 
+	const prevData = useRef(data)
+	const prevId = useRef(id)
+
+	const updateGraphData = useCallback(
+		(data_: any[], id_: string) => {
+			setGraphData((graphData_) => ({ ...graphData_, [id_]: data_ }))
+		},
+		[setGraphData],
+	)
+
+	const prevSetGraphData = useRef(updateGraphData)
+
 	useEffect(() => {
+		console.log('use effect data', data, id)
+		console.log('prevData', prevData.current, prevData.current === data)
+		prevData.current = data
+		console.log('prevId', prevId.current, prevId.current === id)
+		prevId.current = id
+		// console.log(
+		// 	'prevSetGraphData',
+		// 	prevSetGraphData.current,
+		// 	prevSetGraphData.current === updateGraphData,
+		// )
+		// prevSetGraphData.current = updateGraphData
+
 		if (id && data) {
-			setGraphData((graphData) => ({ ...graphData, [id]: data }))
+			// setGraphData((graphData) => ({ ...graphData, [id]: data }))
+			// updateGraphData(data, id)
 		}
-	}, [data, id, setGraphData])
+	}, [data, id])
 
 	// Reset spotlight when `series` is updated
 	useEffect(() => {
+		console.log('use effect series', series)
 		setSpotlight(undefined)
 	}, [series])
 
 	let isEmpty = true
 	for (const d of data ?? []) {
 		for (const v of Object.values(d)) {
-			if (!!v) {
+			if (v) {
 				isEmpty = false
 			}
 		}
@@ -1479,6 +1697,8 @@ const Graph = ({
 			</Stack>
 		)
 	} else {
+		console.log('viewConfig', viewConfig.type)
+
 		switch (viewConfig.type) {
 			case 'Line chart':
 				const axisLimit =

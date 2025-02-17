@@ -112,6 +112,8 @@ const LogsHistogram = ({
 		[styles.outlineHeight]: outline,
 	})
 
+	console.log('LogsHistogram')
+
 	return (
 		<Box
 			display="flex"

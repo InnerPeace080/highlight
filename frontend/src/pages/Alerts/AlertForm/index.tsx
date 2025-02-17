@@ -46,16 +46,16 @@ import {
 import { DestinationInput } from '@/pages/Alerts/DestinationInput'
 import { Combobox } from '@/pages/Graphing/Combobox'
 import { FUNCTION_TYPES, PRODUCT_OPTIONS } from '@/pages/Graphing/constants'
+import { GraphContextProvider } from '@/pages/Graphing/context/GraphContext'
 import { HeaderDivider } from '@/pages/Graphing/Dashboard'
+import { EventSelection } from '@/pages/Graphing/EventSelection'
 import { LabeledRow } from '@/pages/Graphing/LabeledRow'
 import { OptionDropdown } from '@/pages/Graphing/OptionDropdown'
-import { EventSelection } from '@/pages/Graphing/EventSelection'
-import { GraphContextProvider } from '@/pages/Graphing/context/GraphContext'
 import { useGraphData } from '@pages/Graphing/hooks/useGraphData'
 
-import { AlertGraph } from '../AlertGraph'
-import * as style from './styles.css'
+import { AlertGraph } from '@/pages/Alerts/AlertGraph'
 import { useGraphTime } from '@/pages/Graphing/hooks/useGraphTime'
+import * as style from './styles.css'
 
 const SidebarSection = (props: PropsWithChildren) => {
 	return (
@@ -250,6 +250,7 @@ export const AlertForm: React.FC = () => {
 	)
 
 	const handleProductChange = (product: ProductType) => {
+		console.log('handleProductChange', product)
 		if (product === productType) {
 			return
 		}
@@ -319,6 +320,7 @@ export const AlertForm: React.FC = () => {
 	const settingsEncoded = btoa(JSON.stringify(settings))
 
 	useEffect(() => {
+		console.log('useEffect settings')
 		searchParams.set(SETTINGS_PARAM, settingsEncoded)
 		setSearchParams(Object.fromEntries(searchParams.entries()), {
 			replace: true,
@@ -449,6 +451,8 @@ export const AlertForm: React.FC = () => {
 
 	const disableSave =
 		createAlertContext.loading || updateAlertContext.loading || !alertName
+
+	console.log('AlertForm')
 
 	return (
 		<GraphContextProvider value={graphContext}>
