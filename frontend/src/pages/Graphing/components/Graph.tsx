@@ -804,122 +804,126 @@ export const useGraphData = (
 	xAxisMetric: string,
 	thresholdSettings?: ThresholdSettings,
 ) => {
-	return useMemo(() => {
-		let upperThreshold: number | undefined
-		let lowerThreshold: number | undefined
-		if (thresholdSettings?.thresholdType === ThresholdType.Constant) {
-			if (
-				thresholdSettings.thresholdCondition ===
-				ThresholdCondition.Above
-			) {
-				upperThreshold = thresholdSettings.thresholdValue
-			}
-			if (
-				thresholdSettings.thresholdCondition ===
-				ThresholdCondition.Below
-			) {
-				lowerThreshold = thresholdSettings.thresholdValue
-			}
-		}
-
-		let data: any[] | undefined
-		if (metrics?.metrics?.buckets) {
-			data = []
-			const mapData: any = {}
-
-			if (xAxisMetric !== GROUPS_KEY) {
-				const hasGroups =
-					metrics.metrics.buckets.find((b) => b.group.length) !==
-					undefined
-
-				for (const b of metrics.metrics.buckets) {
-					if (mapData[b.bucket_id] === undefined) {
-						mapData[b.bucket_id] = {}
-					}
-					const seriesKey = getSeriesKey({
-						aggregator: b.metric_type,
-						column: b.column,
-						groups: b.group,
-					})
-
-					if (
-						b.bucket_value !== null &&
-						b.bucket_value !== undefined
-					) {
-						mapData[b.bucket_id][xAxisMetric] = b.bucket_value
-					} else {
-						mapData[b.bucket_id][xAxisMetric] =
-							((b.bucket_min ?? 0) + (b.bucket_max ?? 0)) / 2
-					}
-
-					mapData[b.bucket_id][BUCKET_MIN_KEY] = b.bucket_min
-					mapData[b.bucket_id][BUCKET_MAX_KEY] = b.bucket_max
-					mapData[b.bucket_id][seriesKey] = {
-						[VALUE_KEY]: b.metric_value,
-						[SERIES_KEY]: {
-							[AGGREGATOR_KEY]: b.metric_type,
-							[COLUMN_KEY]: b.column,
-							[GROUPS_KEY]: b.group,
-						},
-					}
-
-					const bucketUpper = b.yhat_upper || upperThreshold
-					const bucketLower = b.yhat_lower || lowerThreshold
-
-					if (bucketUpper) {
-						mapData[b.bucket_id][YHAT_UPPER_KEY] = {
-							[seriesKey]: bucketUpper,
-							...mapData[b.bucket_id][YHAT_UPPER_KEY],
-						}
-						if (!hasGroups) {
-							mapData[b.bucket_id][YHAT_UPPER_REGION_KEY] =
-								bucketUpper - (b.yhat_lower ?? 0)
-						}
-					}
-
-					if (bucketLower) {
-						mapData[b.bucket_id][YHAT_LOWER_KEY] = {
-							[seriesKey]: bucketLower,
-							...mapData[b.bucket_id][YHAT_LOWER_KEY],
-						}
-						if (!hasGroups) {
-							mapData[b.bucket_id][YHAT_LOWER_REGION_KEY] =
-								bucketLower
-						}
-					}
+	return useMemo(
+		() => {
+			let upperThreshold: number | undefined
+			let lowerThreshold: number | undefined
+			if (thresholdSettings?.thresholdType === ThresholdType.Constant) {
+				if (
+					thresholdSettings.thresholdCondition ===
+					ThresholdCondition.Above
+				) {
+					upperThreshold = thresholdSettings.thresholdValue
 				}
-				for (const d of Object.values(mapData)) {
-					data.push(d)
+				if (
+					thresholdSettings.thresholdCondition ===
+					ThresholdCondition.Below
+				) {
+					lowerThreshold = thresholdSettings.thresholdValue
 				}
-			} else {
+			}
+
+			let data: any[] | undefined
+			if (metrics?.metrics?.buckets) {
+				data = []
 				const mapData: any = {}
-				for (const b of metrics.metrics.buckets) {
-					const groupKey = getGroupKey(b.group)
-					const seriesKey = getSeriesKey({
-						aggregator: b.metric_type,
-						column: b.column,
-						groups: [],
-					})
-					mapData[groupKey] = {
-						...mapData[groupKey],
-						[seriesKey]: {
+
+				if (xAxisMetric !== GROUPS_KEY) {
+					const hasGroups =
+						metrics.metrics.buckets.find((b) => b.group.length) !==
+						undefined
+
+					for (const b of metrics.metrics.buckets) {
+						if (mapData[b.bucket_id] === undefined) {
+							mapData[b.bucket_id] = {}
+						}
+						const seriesKey = getSeriesKey({
+							aggregator: b.metric_type,
+							column: b.column,
+							groups: b.group,
+						})
+
+						if (
+							b.bucket_value !== null &&
+							b.bucket_value !== undefined
+						) {
+							mapData[b.bucket_id][xAxisMetric] = b.bucket_value
+						} else {
+							mapData[b.bucket_id][xAxisMetric] =
+								((b.bucket_min ?? 0) + (b.bucket_max ?? 0)) / 2
+						}
+
+						mapData[b.bucket_id][BUCKET_MIN_KEY] = b.bucket_min
+						mapData[b.bucket_id][BUCKET_MAX_KEY] = b.bucket_max
+						mapData[b.bucket_id][seriesKey] = {
+							[VALUE_KEY]: b.metric_value,
 							[SERIES_KEY]: {
 								[AGGREGATOR_KEY]: b.metric_type,
 								[COLUMN_KEY]: b.column,
-								[GROUPS_KEY]: [],
+								[GROUPS_KEY]: b.group,
 							},
-							[VALUE_KEY]: b.metric_value,
-						},
-						[GROUPS_KEY]: b.group,
+						}
+
+						const bucketUpper = b.yhat_upper || upperThreshold
+						const bucketLower = b.yhat_lower || lowerThreshold
+
+						if (bucketUpper) {
+							mapData[b.bucket_id][YHAT_UPPER_KEY] = {
+								[seriesKey]: bucketUpper,
+								...mapData[b.bucket_id][YHAT_UPPER_KEY],
+							}
+							if (!hasGroups) {
+								mapData[b.bucket_id][YHAT_UPPER_REGION_KEY] =
+									bucketUpper - (b.yhat_lower ?? 0)
+							}
+						}
+
+						if (bucketLower) {
+							mapData[b.bucket_id][YHAT_LOWER_KEY] = {
+								[seriesKey]: bucketLower,
+								...mapData[b.bucket_id][YHAT_LOWER_KEY],
+							}
+							if (!hasGroups) {
+								mapData[b.bucket_id][YHAT_LOWER_REGION_KEY] =
+									bucketLower
+							}
+						}
+					}
+					for (const d of Object.values(mapData)) {
+						data.push(d)
+					}
+				} else {
+					const mapData: any = {}
+					for (const b of metrics.metrics.buckets) {
+						const groupKey = getGroupKey(b.group)
+						const seriesKey = getSeriesKey({
+							aggregator: b.metric_type,
+							column: b.column,
+							groups: [],
+						})
+						mapData[groupKey] = {
+							...mapData[groupKey],
+							[seriesKey]: {
+								[SERIES_KEY]: {
+									[AGGREGATOR_KEY]: b.metric_type,
+									[COLUMN_KEY]: b.column,
+									[GROUPS_KEY]: [],
+								},
+								[VALUE_KEY]: b.metric_value,
+							},
+							[GROUPS_KEY]: b.group,
+						}
+					}
+					for (const d of Object.values(mapData)) {
+						data.push(d)
 					}
 				}
-				for (const d of Object.values(mapData)) {
-					data.push(d)
-				}
 			}
-		}
-		return data
-	}, [metrics, xAxisMetric, thresholdSettings])
+			return data
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[metrics, xAxisMetric, JSON.stringify(thresholdSettings)],
+	)
 }
 
 export const useFunnelData = (
@@ -1439,7 +1443,8 @@ const Graph = ({
 		if (id && data) {
 			setGraphData((graphData) => ({ ...graphData, [id]: data }))
 		}
-	}, [data, id, setGraphData])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [data, id])
 
 	// Reset spotlight when `series` is updated
 	useEffect(() => {
