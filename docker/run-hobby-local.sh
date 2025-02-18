@@ -3,6 +3,8 @@
 ./telemetry.sh
 source env.sh --go-docker
 
+docker compose -f compose.local.yml build
+
 if [ -f "$ADMIN_PASSWORD" ]; then
   echo 'Exiting because no ADMIN_PASSWORD_FOUND'
   exit 1
@@ -10,7 +12,7 @@ fi
 
 ./start-infra.sh --go-docker
 
-if ! docker compose -f compose.local.yml up --build --detach backend frontend >>/tmp/highlightSetup.log 2>&1; then
+if ! docker compose -f compose.local.yml up --detach backend frontend >>/tmp/highlightSetup.log 2>&1; then
   echo 'Failed to start highlight hobby edition.'
   docker ps -a
   cat /tmp/highlightSetup.log
