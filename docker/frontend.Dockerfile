@@ -51,9 +51,9 @@ COPY ../sourcemap-uploader ./sourcemap-uploader
 # These three 'args' need to be here because they're injected at build time
 # all other env variables are provided in environment.yml.
 ARG NODE_OPTIONS="--max-old-space-size=16384 --openssl-legacy-provider"
-ARG DOPPLER_TOKEN
-RUN doppler me
-RUN doppler run -- yarn build:frontend
+# ARG DOPPLER_TOKEN
+# RUN doppler me
+RUN yarn build:frontend
 
 # reduce the image size by keeping just the built code
 FROM nginx:stable-alpine AS frontend-prod
