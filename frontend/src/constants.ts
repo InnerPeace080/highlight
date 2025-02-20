@@ -1,5 +1,3 @@
-console.log('import.meta.env', import.meta.env)
-
 export const PRIVATE_GRAPH_URI =
 	import.meta.env.REACT_APP_PRIVATE_GRAPH_URI || 'https://pri.highlight.io'
 export const PUBLIC_GRAPH_URI =
