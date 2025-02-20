@@ -63,12 +63,10 @@ function getUntaintedPrototype$1(key) {
     const iframeEl = document.createElement("iframe");
     document.body.appendChild(iframeEl);
     const win = iframeEl.contentWindow;
-    if (!win)
-      return defaultObj.prototype;
+    if (!win) return defaultObj.prototype;
     const untaintedObject = win[key].prototype;
     document.body.removeChild(iframeEl);
-    if (!untaintedObject)
-      return defaultPrototype;
+    if (!untaintedObject) return defaultPrototype;
     return untaintedBasePrototype$1[key] = untaintedObject;
   } catch {
     return defaultPrototype;
@@ -87,8 +85,7 @@ function getUntaintedAccessor$1(key, instance, accessor) {
     untaintedPrototype,
     accessor
   )) == null ? void 0 : _a2.get;
-  if (!untaintedAccessor)
-    return instance[accessor];
+  if (!untaintedAccessor) return instance[accessor];
   untaintedAccessorCache$1[cacheKey] = untaintedAccessor;
   return untaintedAccessor.call(instance);
 }
@@ -101,8 +98,7 @@ function getUntaintedMethod$1(key, instance, method) {
     );
   const untaintedPrototype = getUntaintedPrototype$1(key);
   const untaintedMethod = untaintedPrototype[method];
-  if (typeof untaintedMethod !== "function")
-    return instance[method];
+  if (typeof untaintedMethod !== "function") return instance[method];
   untaintedMethodCache$1[cacheKey] = untaintedMethod;
   return untaintedMethod.bind(instance);
 }
@@ -125,16 +121,14 @@ function getRootNode$1(n2) {
   return getUntaintedMethod$1("Node", n2, "getRootNode")();
 }
 function host$1(n2) {
-  if (!n2 || !("host" in n2))
-    return null;
+  if (!n2 || !("host" in n2)) return null;
   return getUntaintedAccessor$1("ShadowRoot", n2, "host");
 }
 function styleSheets$1(n2) {
   return n2.styleSheets;
 }
 function shadowRoot$1(n2) {
-  if (!n2 || !("shadowRoot" in n2))
-    return null;
+  if (!n2 || !("shadowRoot" in n2)) return null;
   return getUntaintedAccessor$1("Element", n2, "shadowRoot");
 }
 function querySelector$1(n2, selectors) {
@@ -1379,7 +1373,7 @@ function snapshot(n2, options) {
     stylesheetLoadTimeout,
     keepIframeSrcFn = () => false,
     privacySetting = "default"
-  } = options || {};
+  } = options;
   const maskInputOptions = maskAllInputs === true ? {
     color: true,
     date: true,
@@ -1478,7 +1472,7 @@ var pseudoClassPlugin = {
   }
 };
 function getDefaultExportFromCjs$1(x2) {
-  return x2 && x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
+  return x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
 }
 function getAugmentedNamespace$1(n2) {
   if (n2.__esModule) return n2;
@@ -1941,6 +1935,27 @@ function cloneNode$1(obj, parent) {
   }
   return cloned;
 }
+function sourceOffset$1(inputCSS, position) {
+  if (position && typeof position.offset !== "undefined") {
+    return position.offset;
+  }
+  let column = 1;
+  let line = 1;
+  let offset = 0;
+  for (let i2 = 0; i2 < inputCSS.length; i2++) {
+    if (line === position.line && column === position.column) {
+      offset = i2;
+      break;
+    }
+    if (inputCSS[i2] === "\n") {
+      column = 1;
+      line += 1;
+    } else {
+      column += 1;
+    }
+  }
+  return offset;
+}
 var Node$4$1 = class Node2 {
   constructor(defaults = {}) {
     this.raws = {};
@@ -2060,23 +2075,27 @@ var Node$4$1 = class Node2 {
     let index2 = this.parent.index(this);
     return this.parent.nodes[index2 + 1];
   }
-  positionBy(opts, stringRepresentation) {
+  positionBy(opts) {
     let pos = this.source.start;
     if (opts.index) {
-      pos = this.positionInside(opts.index, stringRepresentation);
+      pos = this.positionInside(opts.index);
     } else if (opts.word) {
-      stringRepresentation = this.toString();
+      let stringRepresentation = this.source.input.css.slice(
+        sourceOffset$1(this.source.input.css, this.source.start),
+        sourceOffset$1(this.source.input.css, this.source.end)
+      );
       let index2 = stringRepresentation.indexOf(opts.word);
-      if (index2 !== -1) pos = this.positionInside(index2, stringRepresentation);
+      if (index2 !== -1) pos = this.positionInside(index2);
     }
     return pos;
   }
-  positionInside(index2, stringRepresentation) {
-    let string = stringRepresentation || this.toString();
+  positionInside(index2) {
     let column = this.source.start.column;
     let line = this.source.start.line;
-    for (let i2 = 0; i2 < index2; i2++) {
-      if (string[i2] === "\n") {
+    let offset = sourceOffset$1(this.source.input.css, this.source.start);
+    let end = offset + index2;
+    for (let i2 = offset; i2 < end; i2++) {
+      if (this.source.input.css[i2] === "\n") {
         column = 1;
         line += 1;
       } else {
@@ -2103,13 +2122,15 @@ var Node$4$1 = class Node2 {
       line: start.line
     };
     if (opts.word) {
-      let stringRepresentation = this.toString();
+      let stringRepresentation = this.source.input.css.slice(
+        sourceOffset$1(this.source.input.css, this.source.start),
+        sourceOffset$1(this.source.input.css, this.source.end)
+      );
       let index2 = stringRepresentation.indexOf(opts.word);
       if (index2 !== -1) {
-        start = this.positionInside(index2, stringRepresentation);
+        start = this.positionInside(index2);
         end = this.positionInside(
-          index2 + opts.word.length,
-          stringRepresentation
+          index2 + opts.word.length
         );
       }
     } else {
@@ -2689,7 +2710,7 @@ var urlAlphabet$1 = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwy
 var customAlphabet$1 = (alphabet, defaultSize = 21) => {
   return (size = defaultSize) => {
     let id = "";
-    let i2 = size;
+    let i2 = size | 0;
     while (i2--) {
       id += alphabet[Math.random() * alphabet.length | 0];
     }
@@ -2698,7 +2719,7 @@ var customAlphabet$1 = (alphabet, defaultSize = 21) => {
 };
 var nanoid$1$1 = (size = 21) => {
   let id = "";
-  let i2 = size;
+  let i2 = size | 0;
   while (i2--) {
     id += urlAlphabet$1[Math.random() * 64 | 0];
   }
@@ -4905,7 +4926,7 @@ var NoWorkResult2$1 = noWorkResult$1;
 var Root$1$1 = root$1;
 var Processor$1$1 = class Processor {
   constructor(plugins = []) {
-    this.version = "8.4.47";
+    this.version = "8.4.49";
     this.plugins = this.normalize(plugins);
   }
   normalize(plugins) {
@@ -5493,7 +5514,7 @@ function createMirror$1() {
   return new Mirror$1();
 }
 function getDefaultExportFromCjs(x2) {
-  return x2 && x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
+  return x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
 }
 function getAugmentedNamespace(n2) {
   if (n2.__esModule) return n2;
@@ -5956,6 +5977,27 @@ function cloneNode(obj, parent) {
   }
   return cloned;
 }
+function sourceOffset(inputCSS, position) {
+  if (position && typeof position.offset !== "undefined") {
+    return position.offset;
+  }
+  let column = 1;
+  let line = 1;
+  let offset = 0;
+  for (let i2 = 0; i2 < inputCSS.length; i2++) {
+    if (line === position.line && column === position.column) {
+      offset = i2;
+      break;
+    }
+    if (inputCSS[i2] === "\n") {
+      column = 1;
+      line += 1;
+    } else {
+      column += 1;
+    }
+  }
+  return offset;
+}
 var Node$4 = class Node3 {
   constructor(defaults = {}) {
     this.raws = {};
@@ -6075,23 +6117,27 @@ var Node$4 = class Node3 {
     let index2 = this.parent.index(this);
     return this.parent.nodes[index2 + 1];
   }
-  positionBy(opts, stringRepresentation) {
+  positionBy(opts) {
     let pos = this.source.start;
     if (opts.index) {
-      pos = this.positionInside(opts.index, stringRepresentation);
+      pos = this.positionInside(opts.index);
     } else if (opts.word) {
-      stringRepresentation = this.toString();
+      let stringRepresentation = this.source.input.css.slice(
+        sourceOffset(this.source.input.css, this.source.start),
+        sourceOffset(this.source.input.css, this.source.end)
+      );
       let index2 = stringRepresentation.indexOf(opts.word);
-      if (index2 !== -1) pos = this.positionInside(index2, stringRepresentation);
+      if (index2 !== -1) pos = this.positionInside(index2);
     }
     return pos;
   }
-  positionInside(index2, stringRepresentation) {
-    let string = stringRepresentation || this.toString();
+  positionInside(index2) {
     let column = this.source.start.column;
     let line = this.source.start.line;
-    for (let i2 = 0; i2 < index2; i2++) {
-      if (string[i2] === "\n") {
+    let offset = sourceOffset(this.source.input.css, this.source.start);
+    let end = offset + index2;
+    for (let i2 = offset; i2 < end; i2++) {
+      if (this.source.input.css[i2] === "\n") {
         column = 1;
         line += 1;
       } else {
@@ -6118,13 +6164,15 @@ var Node$4 = class Node3 {
       line: start.line
     };
     if (opts.word) {
-      let stringRepresentation = this.toString();
+      let stringRepresentation = this.source.input.css.slice(
+        sourceOffset(this.source.input.css, this.source.start),
+        sourceOffset(this.source.input.css, this.source.end)
+      );
       let index2 = stringRepresentation.indexOf(opts.word);
       if (index2 !== -1) {
-        start = this.positionInside(index2, stringRepresentation);
+        start = this.positionInside(index2);
         end = this.positionInside(
-          index2 + opts.word.length,
-          stringRepresentation
+          index2 + opts.word.length
         );
       }
     } else {
@@ -6704,7 +6752,7 @@ var urlAlphabet = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzr
 var customAlphabet = (alphabet, defaultSize = 21) => {
   return (size = defaultSize) => {
     let id = "";
-    let i2 = size;
+    let i2 = size | 0;
     while (i2--) {
       id += alphabet[Math.random() * alphabet.length | 0];
     }
@@ -6713,7 +6761,7 @@ var customAlphabet = (alphabet, defaultSize = 21) => {
 };
 var nanoid$1 = (size = 21) => {
   let id = "";
-  let i2 = size;
+  let i2 = size | 0;
   while (i2--) {
     id += urlAlphabet[Math.random() * 64 | 0];
   }
@@ -8920,7 +8968,7 @@ var NoWorkResult22 = noWorkResult;
 var Root$1 = root;
 var Processor$1 = class Processor2 {
   constructor(plugins = []) {
-    this.version = "8.4.47";
+    this.version = "8.4.49";
     this.plugins = this.normalize(plugins);
   }
   normalize(plugins) {
@@ -10383,12 +10431,10 @@ function getUntaintedPrototype(key) {
     const iframeEl = document.createElement("iframe");
     document.body.appendChild(iframeEl);
     const win = iframeEl.contentWindow;
-    if (!win)
-      return defaultObj.prototype;
+    if (!win) return defaultObj.prototype;
     const untaintedObject = win[key].prototype;
     document.body.removeChild(iframeEl);
-    if (!untaintedObject)
-      return defaultPrototype;
+    if (!untaintedObject) return defaultPrototype;
     return untaintedBasePrototype[key] = untaintedObject;
   } catch {
     return defaultPrototype;
@@ -10407,8 +10453,7 @@ function getUntaintedAccessor(key, instance, accessor) {
     untaintedPrototype,
     accessor
   )) == null ? void 0 : _a2.get;
-  if (!untaintedAccessor)
-    return instance[accessor];
+  if (!untaintedAccessor) return instance[accessor];
   untaintedAccessorCache[cacheKey] = untaintedAccessor;
   return untaintedAccessor.call(instance);
 }
@@ -10421,8 +10466,7 @@ function getUntaintedMethod(key, instance, method) {
     );
   const untaintedPrototype = getUntaintedPrototype(key);
   const untaintedMethod = untaintedPrototype[method];
-  if (typeof untaintedMethod !== "function")
-    return instance[method];
+  if (typeof untaintedMethod !== "function") return instance[method];
   untaintedMethodCache[cacheKey] = untaintedMethod;
   return untaintedMethod.bind(instance);
 }
@@ -10445,16 +10489,14 @@ function getRootNode(n2) {
   return getUntaintedMethod("Node", n2, "getRootNode")();
 }
 function host(n2) {
-  if (!n2 || !("host" in n2))
-    return null;
+  if (!n2 || !("host" in n2)) return null;
   return getUntaintedAccessor("ShadowRoot", n2, "host");
 }
 function styleSheets(n2) {
   return n2.styleSheets;
 }
 function shadowRoot(n2) {
-  if (!n2 || !("shadowRoot" in n2))
-    return null;
+  if (!n2 || !("shadowRoot" in n2)) return null;
   return getUntaintedAccessor("Element", n2, "shadowRoot");
 }
 function querySelector(n2, selectors) {
@@ -14440,10 +14482,6 @@ function mitt$1(n2) {
     });
   } };
 }
-var mittProxy = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: mitt$1
-}, Symbol.toStringTag, { value: "Module" }));
 function polyfill(w = window, d = document) {
   if ("scrollBehavior" in d.documentElement.style && w.__forceSmoothScrollPolyfill__ !== true) {
     return;
@@ -15600,7 +15638,7 @@ function removeDialogFromTopLevel(node2, attributeMutation) {
 var SKIP_TIME_INTERVAL = 5 * 1e3;
 var SKIP_TIME_MIN = 1 * 1e3;
 var SKIP_DURATION_LIMIT = 60 * 60 * 1e3;
-var mitt = mitt$1 || mittProxy;
+var mitt = mitt$1;
 var REPLAY_CONSOLE_PREFIX = "[replayer]";
 var defaultMouseTailConfig = {
   duration: 500,
