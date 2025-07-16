@@ -120,6 +120,11 @@ services:
             - '0.0.0.0:6514:6514'
             - '0.0.0.0:8318:8318'
             - '0.0.0.0:8888:8888'
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.highlightio-col.rule=Host(`highlightio-col.tokenize-dev.com`)"
+            - "traefik.http.services.highlightio-col.loadbalancer.server.port=4318"
+            - "traefik.http.routers.highlightio-col.entrypoints=websecure"
 
     predictions:
         logging: *local-logging

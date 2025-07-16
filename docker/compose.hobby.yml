@@ -6,6 +6,11 @@ services:
         restart: on-failure
         ports:
             - '0.0.0.0:8082:8082'
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.highlightio-be.rule=Host(`highlightio-be.tokenize-dev.com`)"
+            - "traefik.http.services.highlightio-be.loadbalancer.server.port=8082"
+            - "traefik.http.routers.highlightio-be.entrypoints=websecure"
         volumes:
             - highlight-data:/highlight-data
             - ../backend/env.enc:/build/env.enc
@@ -25,7 +30,26 @@ services:
             - '0.0.0.0:3000:3000'
             - '0.0.0.0:6006:6006'
             - '0.0.0.0:8080:8080'
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.highlightio.rule=Host(`highlightio.tokenize-dev.com`)"
+            - "traefik.http.services.highlightio.loadbalancer.server.port=3000"
+            - "traefik.http.routers.highlightio.entrypoints=websecure"
         env_file: .env
+
+    traefik:
+        container_name: traefik
+        restart: on-failure
+        build:
+            context: "../traefik"
+        ports:
+            - "0.0.0.0:80:80"
+            - "0.0.0.0:443:443"
+            # - "0.0.0.0:8080:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - traefik-ssl-certs:/ssl-certs
 
 volumes:
     highlight-data:
+    traefik-ssl-certs:
