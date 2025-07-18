@@ -48,9 +48,9 @@ COPY ../sourcemap-uploader ./sourcemap-uploader
 # These three 'args' need to be here because they're injected at build time
 # all other env variables are provided in environment.yml.
 ARG NODE_OPTIONS="--max-old-space-size=16384 --openssl-legacy-provider"
-ARG DOPPLER_TOKEN
-RUN doppler me
-RUN doppler run -- yarn build:frontend
+# ARG DOPPLER_TOKEN
+# RUN doppler me
+RUN yarn build:frontend
 
 # reduce the image size by keeping just the built code
 FROM nginx:stable-alpine AS frontend-prod
@@ -74,6 +74,9 @@ ARG REACT_APP_PUBLIC_GRAPH_URI
 ARG REACT_APP_OTLP_ENDPOINT
 ARG REACT_APP_DISABLE_ANALYTICS
 ARG REACT_APP_LD_CLIENT_ID
+ARG DISCORD_CLIENT_ID
+ARG SLACK_CLIENT_ID
+
 ENV REACT_APP_AUTH_MODE=$REACT_APP_AUTH_MODE
 ENV REACT_APP_FRONTEND_URI=$REACT_APP_FRONTEND_URI
 ENV REACT_APP_PRIVATE_GRAPH_URI=$REACT_APP_PRIVATE_GRAPH_URI
@@ -81,4 +84,7 @@ ENV REACT_APP_PUBLIC_GRAPH_URI=$REACT_APP_PUBLIC_GRAPH_URI
 ENV REACT_APP_OTLP_ENDPOINT=$REACT_APP_OTLP_ENDPOINT
 ENV REACT_APP_DISABLE_ANALYTICS=$REACT_APP_DISABLE_ANALYTICS
 ENV REACT_APP_LD_CLIENT_ID=$REACT_APP_LD_CLIENT_ID
+ENV DISCORD_CLIENT_ID=$DISCORD_CLIENT_ID
+ENV SLACK_CLIENT_ID=$SLACK_CLIENT_ID
+
 CMD ["python3", "/frontend-entrypoint.py"]
