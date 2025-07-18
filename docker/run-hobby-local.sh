@@ -13,7 +13,10 @@ if [[ "$*" != *"--no-pull"* ]]; then
   docker compose -f compose.local.yml pull backend
 fi
 
-docker compose -f compose.local.yml build
+# check command contain "--build"
+if [[ "$*" == *"--build"* ]]; then  
+  docker compose -f compose.local.yml build
+fi
 
 ./start-infra.sh --go-docker
 
