@@ -15,14 +15,14 @@ fi
 
 docker compose -f compose.local.yml build
 
-# ./start-infra.sh --go-docker
+./start-infra.sh --go-docker
 
-# if ! docker compose -f compose.local.yml up --detach backend frontend traefik >>/tmp/highlightSetup.log 2>&1; then
-#   echo 'Failed to start highlight hobby edition.'
-#   docker ps -a
-#   cat /tmp/highlightSetup.log
-#   exit 1
-# fi
+if ! docker compose -f compose.local.yml up --detach backend frontend traefik >>/tmp/highlightSetup.log 2>&1; then
+  echo 'Failed to start highlight hobby edition.'
+  docker ps -a
+  cat /tmp/highlightSetup.log
+  exit 1
+fi
 
-# echo "Highlight started on ${REACT_APP_FRONTEND_URI}"
-# wait
+echo "Highlight started on ${REACT_APP_FRONTEND_URI}"
+wait
