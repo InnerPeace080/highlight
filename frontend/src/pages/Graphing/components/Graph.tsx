@@ -923,7 +923,8 @@ export const useGraphData = (
 			}
 		}
 		return data
-	}, [metrics, xAxisMetric, thresholdSettings])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [metrics, xAxisMetric, JSON.stringify(thresholdSettings)])
 }
 
 export const useFunnelData = (
@@ -1472,7 +1473,8 @@ const Graph = ({
 		if (id && data) {
 			setGraphData((graphData) => ({ ...graphData, [id]: data }))
 		}
-	}, [data, id, setGraphData])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [data, id])
 
 	// Reset spotlight when `series` is updated
 	useEffect(() => {
@@ -1482,7 +1484,7 @@ const Graph = ({
 	let isEmpty = true
 	for (const d of data ?? []) {
 		for (const v of Object.values(d)) {
-			if (!!v) {
+			if (v) {
 				isEmpty = false
 			}
 		}
