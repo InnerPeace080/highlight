@@ -30,6 +30,7 @@ services:
             context: ..
             args:
                 REACT_APP_AUTH_MODE: password
+                REACT_APP_DISABLE_ANALYTICS: ${REACT_APP_DISABLE_ANALYTICS}
                 DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID}
                 SLACK_CLIENT_ID: ${SLACK_CLIENT_ID}
         restart: on-failure
